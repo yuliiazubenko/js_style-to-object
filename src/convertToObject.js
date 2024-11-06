@@ -5,26 +5,29 @@
  *
  * @return {object}
  */
-function convertToObject(sourceString) {
-  const stylesObject = {};
+function convertToObject(stylesString) {
+  return stylesString.split(';').reduce((accumulator, declaration) => {
+    const trimmedDecl = declaration.trim();
 
-  sourceString
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line && line.includes(':'))
-    .forEach((line) => {
-      const [key, value] = line.split(':').map((part) => part.trim());
+    if (!trimmedDecl) {
+      return accumulator;
+    }
 
-      if (key && value) {
-        if (value.endsWith(';')) {
-          // eslint-disable-next-line no-const-assign
-          value = value.slice(0, -1);
-        }
-        stylesObject[key] = value;
-      }
-    });
+    const colonIndex = trimmedDecl.indexOf(':');
 
-  return stylesObject;
+    if (colonIndex === -1) {
+      return accumulator;
+    }
+
+    const property = trimmedDecl.slice(0, colonIndex).trim();
+    const value = trimmedDecl.slice(colonIndex + 1).trim();
+
+    if (property && value) {
+      accumulator[property] = value;
+    }
+
+    return accumulator;
+  }, {});
 }
 
 module.exports = convertToObject;
